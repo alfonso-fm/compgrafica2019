@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Computación Grafica - Entorno 3D</title>
+  <!-- simple shader displaying a constant color -->
+  <script id="color_vs" type="x-shader/x-vertex">
+    uniform mat4 uMat4PVM;  
+    attribute vec4 aVec4Position;       
+    void main()                 
+    {
+	    gl_Position = uMat4PVM * aVec4Position;
+    }
+  </script>
+  <script id="color_fs" type="x-shader/x-fragment">
+    precision mediump float;      							   
+    uniform vec4 uVec4Diffuse;         
+    void main()                   
+    {
+      gl_FragColor = uVec4Diffuse;
+    }
+  </script>
+
+  <!-- Phong shader -->
+  <script id="phong_vs" type="x-shader/x-vertex">
+
+    uniform mat4 uMat4PVM;   
+    uniform mat3 uMat3Normal;
+    uniform mat4 uMat4ViewModel;
+
+    attribute vec4 aVec4Position;  
+    attribute vec3 aVec3Normal;
+        
+    varying vec3 normal;
+    varying vec3 eyeCoord;
+
+    void main()                 
+    {
+      normal = normalize(uMat3Normal * aVec3Normal);
+      eyeCoord = -vec3(uMat4ViewModel * aVec4Position);
+      gl_Position = uMat4PVM * aVec4Position;
+    }
+  </script>
+  <script id="phong_fs" type="x-shader/x-fragment">
+    precision mediump float;      
+							  
+    uniform vec3 uVec3LightDir; 
+    uniform vec4 uVec4Diffuse;         
+    uniform vec4 uVec4Specular;
+    uniform float uFloatShininess;
+    uniform float uFloatAmbient;
+		  					  
+    varying vec3 normal;
+    varying vec3 eyeCoord;
+            
+    void main()                   
+    {
+        vec4 spec = vec4(0.0);
+
+        vec3 n = normalize(normal);
+        vec3 e = normalize(eyeCoord);
+    
+
+        float intensity = max(dot(n,uVec3LightDir), 0.0);
+
+        if (intensity > 0.0) {
+    
+            vec3 h = normalize(uVec3LightDir + e);
+            float intSpec = max(dot(h,n), 0.0);
+            spec = uVec4Specular * pow(intSpec, uFloatShininess);
+        }
+     // gl_FragColor = vec4(1.0,1.0,0.0,1.0);
+    //  gl_FragColor = vec4(uVec3LightDir,1.0);
+        gl_FragColor = max(vec4(intensity, intensity, intensity, 1.0) * uVec4Diffuse + spec , uVec4Diffuse * vec4(uFloatAmbient, uFloatAmbient, uFloatAmbient, 1.0));  
+    }
+  </script>
+
+  <!-- Phong shader with texturing -->
+  <script id="phong_texture_vs" type="x-shader/x-vertex">
+    uniform mat4 uMat4PVM;   
+    uniform mat3 uMat3Normal;
+    uniform mat4 uMat4ViewModel;
+
+    attribute vec4 aVec4Position;  
+    attribute vec3 aVec3Normal;
+    attribute vec2 aVec2TexCoord;
+
+        
+    varying vec3 normal;
+    varying vec3 eyeCoord;
+    varying vec2 tc;
+
+    void main()                 
+    {
+        tc = aVec2TexCoord;
+        normal = normalize(uMat3Normal * aVec3Normal);
+        eyeCoord = -vec3(uMat4ViewModel * aVec4Position);
+
+	    gl_Position = uMat4PVM * aVec4Position;
+    }
+  </script>
+  <script id="phong_texture_fs" type="x-shader/x-fragment">
+    precision mediump float;      
+							  
+    uniform vec3 uVec3LightDir; 
+    uniform vec4 uVec4Diffuse;         
+    uniform vec4 uVec4Specular;
+    uniform float uFloatShininess;
+    uniform float uFloatAmbient;
+		  				
+    uniform sampler2D uSamp2DTexID;
+        	  
+    varying vec3 normal;
+    varying vec3 eyeCoord;
+    varying vec2 tc;
+            
+    void main()                   
+    {
+        vec4 spec = vec4(0.0);
+
+        vec3 n = normalize(normal);
+        vec3 e = normalize(eyeCoord);
+    
+
+        float intensity = max(dot(n,uVec3LightDir), 0.0);
+
+        if (intensity > 0.0) {
+    
+            vec3 h = normalize(uVec3LightDir + e);
+            float intSpec = max(dot(h,n), 0.0);
+            spec = uVec4Specular * pow(intSpec, uFloatShininess);
+        }
+        vec4 dif = uVec4Diffuse * texture2D(uSamp2DTexID, tc);
+        gl_FragColor = max(vec4(intensity, intensity, intensity, 1.0) * dif + spec , uVec4Diffuse * vec4(uFloatAmbient, uFloatAmbient, uFloatAmbient, 1.0));  
+    }
+  </script>
+
+ <!-- vertex shader -->
+  <script id="3d-vertex-shader" type="x-shader/x-vertex">
+    attribute vec4 a_position;
+    attribute vec2 a_texcoord;
+
+    uniform mat4 u_matrix;
+
+    varying vec2 v_texcoord;
+
+    void main() {
+      // Multiply the position by the matrix.
+      gl_Position = u_matrix * a_position;
+
+      // Pass the texcoord to the fragment shader.
+      v_texcoord = a_texcoord;
+    }
+      </script>
+  <!-- fragment shader -->
+  <script id="3d-fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    // Passed in from the vertex shader.
+    varying vec2 v_texcoord;
+
+    // The texture.
+    uniform sampler2D u_texture;
+
+    void main() {
+       gl_FragColor = texture2D(u_texture, v_texcoord);
+    }
+  </script>
+
+  <script type="text/javascript" src="Scripts/data_figures.js"    ></script>
+  <script type="text/javascript" src="Scripts/data_steps.js"      ></script>
+  <script type="text/javascript" src="Scripts/data_colors.js"     ></script>
+  
+  <script type="text/javascript" src="Scripts/util_webgl-utils.js"></script>
+  <script type="text/javascript" src="Scripts/util_jsMatrix.js"   ></script>
+  <script type="text/javascript" src="Scripts/util_l3dmodels.js"  ></script>
+
+  <script type="text/javascript" src="Scripts/app_scene.js"        ></script>
+  <script type="text/javascript" src="Scripts/app_main.js"         ></script>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" /> 
+</head>
+<body data-gr-c-s-loaded="true" onload="start()">
+  <header>
+    <div class="navbar navbar-dark bg-dark box-shadow">
+      <div class="container d-flex justify-content-between">
+        <a href="#" class="navbar-brand d-flex align-items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <strong>Computación Gráfica</strong>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main role="main">
+    <div class="album py-5 bg-light">
+      <div class="container">
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card mb-4 shadow-sm">
+              <div class="card-body">
+                <p class="card-text" style="display:inherit;">Proyecto a entregar para el Examen Extraordinario de la materia Computación Gráfica.</p>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                    <button type="button" onclick="Towers()" class="btn btn-sm btn-outline-secondary">TORRES DE HANOI</button>
+                    <button type="button" onclick="Fall()" class="btn btn-sm btn-outline-secondary">CAIDA LIBRE    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-10">
+                  <canvas width="900" height="750" id="canvas">Your browser does not support the canvas tag.</canvas>
+                </div>
+                <div class="col-2" >
+                  <button type="button" class="btn btn-primary" onclick="return Reinit()">Reiniciar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-muted" >    
+    <div class="container">
+      <p class="float-right">
+        <a href="#">Back to top</a>
+      </p>
+      <p>@Computación Gráfica 2019</p>
+    </div>
+    <div class="container">
+      <div class="row"><a target="_blank" href="https://www.toptal.com/javascript/graficos-3d-un-tutorial-de-webgl"           >Graficos-3d-un-tutorial-de-webgl</a></div>
+      <div class="row"><a target="_blank" href="https://webglfundamentals.org/"                                               >Webglfundamentals.org           </a></div>
+      <div class="row"><a target="_blank" href="https://sites.google.com/site/desarrolloenwebgl/"                             >Desarrolloenwebgl               </a></div>
+      <div class="row"><a target="_blank" href="http://sylvester.jcoglan.com/"                                                >Sylvester.js                    </a></div>
+      <div class="row"><a target="_blank" href="https://developer.mozilla.org/es/docs/Web/API/WebGL_API/"                     >WebGL_API                       </a></div>
+      <div class="row"><a target="_blank" href="https://www.html5rocks.com/en/tutorials/webgl/shaders/"                       >Shaders                         </a></div>
+      <div class="row"><a target="_blank" href="https://blogoben.wordpress.com/2011/10/26/webgl-basics-7-colored-torus/"      >Toroides                        </a></div>
+      <div class="row"><a target="_blank" href="http://www.lighthouse3d.com/2014/01/webgl-basic-material-list-from-teapots-c/">Materials                       </a></div>
+      <div class="row"><a target="_blank" href="https://jasonjhayes.azurewebsites.net/WebGL/Apps/Model3D/"                    >Demos                           </a></div>
+    </div>
+  </footer>
+</body>
+</html>
