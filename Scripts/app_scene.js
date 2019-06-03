@@ -131,7 +131,7 @@ var scenario = function () {
       this.graphicObjects["TorusRed"] = new Torus().CreateModel(3.0, 2, 30, 30, 1, 15, [12, 2, 0], [1, 0.5, 1]);
       this.graphicObjects["TorusGreen"] = new Torus().CreateModel(2.4, 1.6, 30, 30, 1, 14, [12, 4, 0], [1, 0.6, 1]);
       this.graphicObjects["TorusBlue"] = new Torus().CreateModel(1.8, 0.7, 30, 30, 1, 13, [12, 6, 0], [1, 1.4, 1]);
-      this.graphicObjects["Poster"] = new Poster().CreatePoster('/images/credencialo.png', [8, 4, .1], [-1, 3, 80]);
+      this.graphicObjects["Poster"] = new Poster().CreatePoster('images/credencialo.png', [8, 4, .1], [-1, 3, 80]);
 
       for (var step = 0; step < steps.length; step++) {
         this.graphicObjects["TorusRed"].Model.AddMovements(step, steps[step][0]);
@@ -140,7 +140,7 @@ var scenario = function () {
       }
     }
     else {
-      this.graphicObjects["Figure01"] = new Figure().CreateFigure('fig01', '/images/texture.jpg', [1, 0.3, 1], [4, 66, 0]);
+      this.graphicObjects["Figure01"] = new Figure().CreateFigure('fig01', 'images/texture.jpg', [1, 0.3, 1], [4, 66, 0]);
       this.graphicObjects["Figure02"] = new Figure().CreateFigure('fig02', '', [1, 0.3, 1], [0, 66, 0]);
       this.graphicObjects["Figure03"] = new Figure().CreateFigure('fig03', '', [1, 0.3, 1], [-4, 66, 0]);
       for (var step = 0; step < falls.length; step++) {
