@@ -3,7 +3,7 @@ var counter = 0, counter2 = 0, movements = -1;
 var mouseTracking = -1, startX, startY;
 var gl;
 var idProc;
-var option = 1;
+var option = 0;
 
 function handleKeyDown(event) {
   escenario.Cam.HandleKeyDown(event.keyCode);
