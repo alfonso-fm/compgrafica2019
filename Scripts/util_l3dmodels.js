@@ -801,7 +801,58 @@ function createSphere(sides, material) {
     s.setMaterial(material);
   return s;
 }
-function createTorus(r, sr, n, sn, k, material) {
+function createTorus(r, sr, sides, sn, k, material) {
+  var p = new Array();
+  var n = new Array();
+  var t = new Array();
+  var ind = new Array();
+  var alpha, beta, x, y, z;
+
+  //stepi = Math.PI / sr;
+  //stepj = Math.PI / sides;
+
+  for (var i = 0; i < sides + 1; ++i) {
+    for (var j = 0; j < sides * 2 + 1; ++j) {
+      
+      beta = 2 * Math.PI * (i + j / sn + k * 1) / sides;
+      alpha = 2 * Math.PI * j / sn;
+      
+     /*
+      beta = -Math.PI / 2 + (Math.PI / sr) * i;
+      alpha =  (Math.PI / sides) * j;
+      */
+      x = (r + sr * Math.cos(alpha)) * Math.cos(beta);
+      z = (r + sr * Math.cos(alpha)) * Math.sin(beta);
+      y = sr * Math.sin(alpha);
+/*
+      x = (r + sr * Math.cos(sa)) * Math.cos(a);
+      z = (r + sr * Math.cos(sa)) * Math.sin(a);
+      y = sr * Math.sin(sa);
+*/    
+      p.push(x, y, z, 1);
+      n.push(x, y, z);
+      t.push(j / sides * 0.5, i / sides);
+    }
+  }
+
+  for (var i = 0; i < sides; i++) {
+    for (var j = 0; j < sides * 2; ++j) {
+      ind.push(i * (sides * 2 + 1) + j + 1, (i + 1) * (sides * 2 + 1) + j, i * (sides * 2 + 1) + j);
+      ind.push((i + 1) * (sides * 2 + 1) + j + 1, (i + 1) * (sides * 2 + 1) + j, i * (sides * 2 + 1) + j + 1);
+    }
+  }
+
+  var pp = new Float32Array(p);
+  var nn = new Float32Array(n);
+  var tt = new Float32Array(t);
+  var ii = new Uint16Array(ind);
+  var s = new Model();
+  s.create(gl.TRIANGLES, [pp, nn, tt], ii);
+  if (material != undefined)
+    s.setMaterial(material);
+  return s;
+}
+function createTorus2(r, sr, n, sn, k, material) {
   var p = new Array();
   var n2 = new Array();
   var t = new Array();
@@ -810,7 +861,7 @@ function createTorus(r, sr, n, sn, k, material) {
 
   for (var i = 0; i < n; i++) {                          // Iterates over all strip rounds
     for (var j = 0; j < sn + 1 * (i == n - 1) ; j++) {   // Iterates along the torus section
-      for (var v = 0; v < 1; v++)                        // Creates zigzag pattern (v equals 0 or 1)
+      for (var v = 0; v < 2; v++)                        // Creates zigzag pattern (v equals 0 or 1)
       {
         var a = 2 * Math.PI * (i + j / sn + k * v) / n;
         var sa = 2 * Math.PI * j / sn;

@@ -68,7 +68,7 @@ function render(time) {
 }
 function startTowers() {
   escenario = new scenario();
-  escenario.Delay = 2;
+  escenario.Delay = 15;
   escenario.Canvas = document.getElementById("canvas");
   escenario.gl = WebGLUtils.setupWebGL(canvas, { depth: true });
   this.alpha = 2.4;

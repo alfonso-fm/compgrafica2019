@@ -83,6 +83,7 @@ var scenario = function () {
 
     myGrid = createGrid(1, 18, 36);
     myGrid.setMaterial(myGridMat);
+    myGrid.setMaterialColor(13);
   }
   this.createProgram = function (docVS, docFS, attributes, uniforms) {
     var vs = this.gl.createShader(this.gl.VERTEX_SHADER);
@@ -128,9 +129,9 @@ var scenario = function () {
       this.graphicObjects["Tower01"] = new Tower().CreateTower(11, [4, .5, 4], [3, 1, 0], 8, [1, 10, 1], [12, 1, 0]);
       this.graphicObjects["Tower02"] = new Tower().CreateTower(11, [4, .5, 4], [0, 1, 0], 8, [1, 10, 1], [0, 1, 0]);
       this.graphicObjects["Tower03"] = new Tower().CreateTower(11, [4, .5, 4], [-3, 1, 0], 8, [1, 10, 1], [-12, 1, 0]);
-      this.graphicObjects["TorusRed"] = new Torus().CreateModel(3.0, 2, 30, 30, 1, 15, [12, 2, 0], [1, 0.5, 1]);
-      this.graphicObjects["TorusGreen"] = new Torus().CreateModel(2.4, 1.6, 30, 30, 1, 14, [12, 4, 0], [1, 0.6, 1]);
-      this.graphicObjects["TorusBlue"] = new Torus().CreateModel(1.8, 0.7, 30, 30, 1, 13, [12, 6, 0], [1, 1.4, 1]);
+      this.graphicObjects["TorusRed"] = new Torus().CreateModel(4, 1, 30, 30, 1, 15, [12, 2, 0], [1, 1, 1]);
+      this.graphicObjects["TorusGreen"] = new Torus().CreateModel(3, 1, 30, 30, 1, 14, [12, 4, 0], [1, 1, 1]);
+      this.graphicObjects["TorusBlue"] = new Torus().CreateModel(2, 1, 30, 30, 1, 13, [12, 6, 0], [1, 1, 1]);
       this.graphicObjects["Poster"] = new Poster().CreatePoster('images/credencialo.png', [8, 4, .1], [-1, 3, 80]);
 
       for (var step = 0; step < steps.length; step++) {
@@ -255,8 +256,8 @@ function Torus() {
     this.Model = createTorus(r, sr, n, ns, en);
     this.Model.setMaterial(material);
     this.Model.setMaterialColor(mat);
+    //this.Model.scale(vscale);
     this.Model.translate(vtraslate);
-    this.Model.scale(vscale);
     return this;
   }
   this.Render = function () {
