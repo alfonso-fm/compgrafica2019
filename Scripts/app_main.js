@@ -1,9 +1,14 @@
 ﻿var escenario;
-var counter = 0, counter2 = 0, movements = -1;
+var counter = 0, counter2 = 0, movements = 0;
 var mouseTracking = -1, startX, startY;
 var gl;
 var idProc;
-var option = 0;
+var option = 1;
+var h = 0;
+var time = 10;
+var beginFall = false;
+//var vlight = [1.0, -0.5, -1.0, 0.0];
+var vlight = [100, 100, -100, 0];
 
 function handleKeyDown(event) {
   escenario.Cam.HandleKeyDown(event.keyCode);
@@ -50,7 +55,7 @@ function render(time) {
   escenario.gl.uniformMatrix4fv(escenario.phongProgram.uniforms["uMat4PVM"], false, Matrices.getPVM());
 
   // set the light direction uniform 
-  var uVec3LightDir = [1.0, -0.5, -1.0, 0.0];
+  var uVec3LightDir = vlight;
   var res2 = vec3.create();
   mat4.multiplyVec4(Matrices.view, uVec3LightDir, res2);
   vec3.normalize(res2);
@@ -68,7 +73,8 @@ function render(time) {
 }
 function startTowers() {
   escenario = new scenario();
-  escenario.Delay = 15;
+  vlight = [100, 100, -100, 0];
+  escenario.Delay = 5;
   escenario.Canvas = document.getElementById("canvas");
   escenario.gl = WebGLUtils.setupWebGL(canvas, { depth: true });
   this.alpha = 2.4;
@@ -86,12 +92,13 @@ function startTowers() {
 }
 function startFall() {
   escenario = new scenario();
-  escenario.Delay = 2;
+  vlight = [-100, -100, -100, 0];
+  escenario.Delay = 1;
   escenario.Canvas = document.getElementById("canvas");
   escenario.gl = WebGLUtils.setupWebGL(canvas, { depth: true });
   escenario.Cam.alpha = 2.4;
-  escenario.Cam.beta = 0.80;
-  escenario.Cam.radius = 40;
+  escenario.Cam.beta = -0.19;
+  escenario.Cam.radius = 25;
   gl = escenario.gl;
   if (escenario.gl != null) {
     escenario.init(option);
@@ -105,7 +112,7 @@ function startFall() {
 function Reinit() {
   counter = 0;
   counter2 = 0;
-  movements = -1;
+  movements = 0;
   window.cancelAnimationFrame(idProc);
   gl.clear(gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);

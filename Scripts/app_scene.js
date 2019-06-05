@@ -21,6 +21,9 @@
       case "R": this.radius += 0.05; break;
       case "F": this.radius -= 0.05; if (this.radius < 0.5) this.radius = 0.5; break;
     }
+    if(option == 1){
+      beginFall=true;
+    }
     this.Spherical2Cartesian();
   }
   this.UpdatePosition = function (mouseTracking, deltaX, deltaY) {
@@ -40,7 +43,12 @@
   this.Spherical2Cartesian = function () {
     this.X = this.radius * Math.cos(this.beta) * Math.sin(this.alpha);
     this.Z = this.radius * Math.cos(this.beta) * Math.cos(this.alpha);
-    this.Y = this.radius * Math.sin(this.beta)
+    this.Y = this.radius * Math.sin(this.beta);
+
+    document.getElementById("CamAlpha").innerHTML = this.alpha;
+    document.getElementById("CamBeta").innerHTML = this.beta;
+    document.getElementById("CamRadius").innerHTML = this.radius;
+  
   }
   this.GetPoint = function () {
     return [this.X, this.Y, this.Z]
@@ -141,9 +149,9 @@ var scenario = function () {
       }
     }
     else {
-      this.graphicObjects["Figure01"] = new Figure().CreateFigure('fig01', 'images/texture.jpg', [1, 0.3, 1], [4, 66, 0]);
-      this.graphicObjects["Figure02"] = new Figure().CreateFigure('fig02', '', [1, 0.3, 1], [0, 66, 0]);
-      this.graphicObjects["Figure03"] = new Figure().CreateFigure('fig03', '', [1, 0.3, 1], [-4, 66, 0]);
+      this.graphicObjects["Figure01"] = new Figure().CreateFigure('fig01', 'images/texture.jpg', [1, .1, 1], [0, 0, 0], 1);
+      this.graphicObjects["Figure02"] = new Figure().CreateFigure('fig02', '', [1, .1, 1], [0, 0, 0], 13);
+      this.graphicObjects["Figure03"] = new Figure().CreateFigure('fig03', '', [1, .1, 1], [0, 0, 0], 14);
       for (var step = 0; step < falls.length; step++) {
         this.graphicObjects["Figure01"].Model.AddMovements(step, falls[step]);
         this.graphicObjects["Figure02"].Model.AddMovements(step, falls[step]);
@@ -156,13 +164,13 @@ var scenario = function () {
     if (opt == 0) {
       if (counter2 == this.Delay) {
         counter2 = 0;
-        movements++;
         this.graphicObjects["TorusRed"].Model.ApplyTranslate(movements);
         this.graphicObjects["TorusGreen"].Model.ApplyTranslate(movements);
         this.graphicObjects["TorusBlue"].Model.ApplyTranslate(movements);
 
-        if (movements == steps.length - 1) {
-          movements = -1;
+        movements++;
+        if (movements == steps.length) {
+          movements = 0;
         }
       }
       this.graphicObjects["Grid"].render();
@@ -178,13 +186,18 @@ var scenario = function () {
     else {
       if (counter2 == this.Delay) {
         counter2 = 0;
-        movements++;
-        this.graphicObjects["Figure01"].Model.ApplyTranslate(movements);
-        this.graphicObjects["Figure02"].Model.ApplyTranslate(movements);
-        this.graphicObjects["Figure03"].Model.ApplyTranslate(movements);
-
-        if (movements == steps.length - 1) {
-          movements = -1;
+        if(beginFall){
+          this.graphicObjects["Figure01"].Model.ApplyTranslate(movements);
+          this.graphicObjects["Figure02"].Model.ApplyTranslate(movements);
+          this.graphicObjects["Figure03"].Model.ApplyTranslate(movements);        
+          h += this.graphicObjects["Figure03"].Model.movements[movements][1];
+          movements++;
+          document.getElementById("heightFall").innerHTML = h;
+          if (movements == falls.length) {
+            this.graphicObjects["Figure03"].Model.movements[0][1] = this.graphicObjects["Figure03"].Model.movements[0][1] - h; 
+            movements = 0;
+            beginFall=false;
+          }
         }
       }
       this.graphicObjects["Grid"].render();
@@ -212,11 +225,12 @@ function Poster() {
 }
 function Figure() {
   this.Model;
-  this.CreateFigure = function (name, urlMat, vBaseScale, vBaseTranslate) {
+  this.CreateFigure = function (name, urlMat, vBaseScale, vBaseTranslate, matId) {
     var mat = new Material();
     mat.setImageTexture(urlMat);
     this.Model = createFigure(name);
     this.Model.setMaterial(mat);
+    this.Model.setMaterialColor(matId);
     this.Model.scale(vBaseScale);
     this.Model.translate(vBaseTranslate);
     return this;
